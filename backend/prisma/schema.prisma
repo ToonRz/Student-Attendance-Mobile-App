@@ -1,0 +1,101 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  TEACHER
+  STUDENT
+}
+
+enum AttendanceStatus {
+  PRESENT
+  LATE
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      Role
+  fcmToken  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Teacher relations
+  teachingClasses Class[]       @relation("TeacherClasses")
+  
+  // Student relations
+  enrollments     ClassMember[] @relation("StudentEnrollments")
+  attendances     Attendance[]  @relation("StudentAttendances")
+
+  @@map("users")
+}
+
+model Class {
+  id        String   @id @default(uuid())
+  name      String
+  subject   String
+  code      String   @unique
+  teacherId String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  teacher   User          @relation("TeacherClasses", fields: [teacherId], references: [id])
+  members   ClassMember[]
+  sessions  Session[]
+
+  @@map("classes")
+}
+
+model ClassMember {
+  id        String   @id @default(uuid())
+  classId   String
+  studentId String
+  joinedAt  DateTime @default(now())
+
+  class_    Class @relation(fields: [classId], references: [id], onDelete: Cascade)
+  student   User  @relation("StudentEnrollments", fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([classId, studentId])
+  @@map("class_members")
+}
+
+model Session {
+  id            String   @id @default(uuid())
+  classId       String
+  qrSecret      String
+  teacherLat    Float
+  teacherLng    Float
+  durationMin   Int      @default(10)
+  expiresAt     DateTime
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+
+  class_        Class        @relation(fields: [classId], references: [id], onDelete: Cascade)
+  attendances   Attendance[]
+
+  @@map("sessions")
+}
+
+model Attendance {
+  id          String           @id @default(uuid())
+  sessionId   String
+  studentId   String
+  studentLat  Float
+  studentLng  Float
+  distance    Float
+  status      AttendanceStatus @default(PRESENT)
+  checkedInAt DateTime         @default(now())
+
+  session     Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  student     User    @relation("StudentAttendances", fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, studentId])
+  @@map("attendances")
+}
