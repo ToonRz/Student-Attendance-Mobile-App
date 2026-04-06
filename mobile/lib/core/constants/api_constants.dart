@@ -1,5 +1,5 @@
 class ApiConstants {
-  static const String baseUrl = 'http://10.0.2.2:3000/api'; // Android emulator -> localhost
+  static const String baseUrl = 'http://127.0.0.1:3000/api'; // Web -> localhost (using IPv4)
   // Use 'http://localhost:3000/api' for iOS simulator
   // Use your machine IP for physical device: 'http://192.168.x.x:3000/api'
 

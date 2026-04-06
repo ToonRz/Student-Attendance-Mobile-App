@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
-import '../../core/network/api_client.dart';
-import '../../core/network/api_exceptions.dart';
-import '../../core/constants/api_constants.dart';
+import 'package:student_attendance/core/network/api_client.dart';
+import 'package:student_attendance/core/network/api_exceptions.dart';
+import 'package:student_attendance/core/constants/api_constants.dart';
 
 class AuthRepository {
   final ApiClient _api = ApiClient();

@@ -262,11 +262,11 @@ class _SessionScreenState extends State<SessionScreen> {
               size: 250,
               backgroundColor: Colors.white,
               eyeStyle: const QrEyeStyle(
-                eyeShape: QrEyeShape.roundedOuter,
+                eyeShape: QrEyeShape.circle,
                 color: Color(0xFF1A1A2E),
               ),
               dataModuleStyle: const QrDataModuleStyle(
-                dataModuleShape: QrDataModuleShape.roundedOutside,
+                dataModuleShape: QrDataModuleShape.circle,
                 color: Color(0xFF1A1A2E),
               ),
             ),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../data/auth_repository.dart';
-import '../../core/network/api_exceptions.dart';
+import 'package:student_attendance/core/network/api_exceptions.dart';
 
 enum AuthStatus { initial, loading, authenticated, unauthenticated, error }
 
