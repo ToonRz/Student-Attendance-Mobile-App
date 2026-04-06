@@ -6,7 +6,13 @@ const { verifyLocation } = require('./locationService');
 /**
  * Student check-in with QR token and location verification
  */
-async function checkIn(studentId, { sessionId, qrToken, latitude, longitude }) {
+async function checkIn(studentId, { sessionId, qrToken, latitude, longitude, deviceId }) {
+  // 0. Verify device binding
+  const user = await prisma.user.findUnique({ where: { id: studentId } });
+  if (user && user.deviceId && user.deviceId !== deviceId) {
+    throw new ApiError(403, 'This account is linked to another device. Please use your registered device.');
+  }
+
   // 1. Get session
   const session = await prisma.session.findUnique({
     where: { id: sessionId },

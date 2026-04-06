@@ -4,10 +4,10 @@ const { sendNotification } = require('../services/notificationService');
 const { asyncHandler, apiResponse, ApiError } = require('../utils/helpers');
 
 const checkIn = asyncHandler(async (req, res) => {
-  const { sessionId, qrToken, latitude, longitude } = req.body;
+  const { sessionId, qrToken, latitude, longitude, deviceId } = req.body;
 
-  if (!sessionId || !qrToken || latitude == null || longitude == null) {
-    throw new ApiError(400, 'sessionId, qrToken, latitude, and longitude are required');
+  if (!sessionId || !qrToken || latitude == null || longitude == null || !deviceId) {
+    throw new ApiError(400, 'sessionId, qrToken, latitude, longitude, and deviceId are required');
   }
 
   const attendance = await attendanceService.checkIn(req.user.id, {
@@ -15,6 +15,7 @@ const checkIn = asyncHandler(async (req, res) => {
     qrToken,
     latitude,
     longitude,
+    deviceId,
   });
 
   // Notify teacher about check-in

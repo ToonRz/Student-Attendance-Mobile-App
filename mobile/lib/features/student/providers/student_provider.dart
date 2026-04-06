@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../data/student_repository.dart';
 import '../../../core/network/api_exceptions.dart';
+import '../../../core/services/device_service.dart';
 
 class StudentProvider extends ChangeNotifier {
   final StudentRepository _repo = StudentRepository();
@@ -63,11 +64,13 @@ class StudentProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
+      final deviceId = await DeviceService.getDeviceId();
       await _repo.checkIn(
         sessionId: sessionId,
         qrToken: qrToken,
         latitude: latitude,
         longitude: longitude,
+        deviceId: deviceId,
       );
       _checkInSuccess = true;
       _isLoading = false;

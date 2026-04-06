@@ -6,11 +6,12 @@ import 'package:student_attendance/core/constants/api_constants.dart';
 class AuthRepository {
   final ApiClient _api = ApiClient();
 
-  Future<Map<String, dynamic>> login(String email, String password) async {
+  Future<Map<String, dynamic>> login(String email, String password, {String? deviceId}) async {
     try {
       final response = await _api.post(ApiConstants.login, data: {
         'email': email,
         'password': password,
+        'deviceId': deviceId,
       });
       final data = response.data['data'];
       await _api.saveToken(data['token']);
@@ -24,14 +25,16 @@ class AuthRepository {
     String name,
     String email,
     String password,
-    String role,
-  ) async {
+    String role, {
+    String? deviceId,
+  }) async {
     try {
       final response = await _api.post(ApiConstants.register, data: {
         'name': name,
         'email': email,
         'password': password,
         'role': role,
+        'deviceId': deviceId,
       });
       final data = response.data['data'];
       await _api.saveToken(data['token']);

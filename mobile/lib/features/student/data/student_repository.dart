@@ -29,6 +29,7 @@ class StudentRepository {
     required String qrToken,
     required double latitude,
     required double longitude,
+    required String deviceId,
   }) async {
     try {
       final response = await _api.post(ApiConstants.checkIn, data: {
@@ -36,6 +37,7 @@ class StudentRepository {
         'qrToken': qrToken,
         'latitude': latitude,
         'longitude': longitude,
+        'deviceId': deviceId,
       });
       return response.data['data'];
     } on DioException catch (e) {

@@ -7,7 +7,7 @@ const { ApiError } = require('../utils/helpers');
 /**
  * Register a new user
  */
-async function register({ email, password, name, role }) {
+async function register({ email, password, name, role, deviceId }) {
   // Validate role
   if (!['TEACHER', 'STUDENT'].includes(role)) {
     throw new ApiError(400, 'Role must be TEACHER or STUDENT');
@@ -17,6 +17,14 @@ async function register({ email, password, name, role }) {
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) {
     throw new ApiError(409, 'Email already registered');
+  }
+
+  // If student and deviceId provided, check if device is already bound to someone else
+  if (role === 'STUDENT' && deviceId) {
+    const deviceBound = await prisma.user.findUnique({ where: { deviceId } });
+    if (deviceBound) {
+      throw new ApiError(403, 'This device is already linked to another account');
+    }
   }
 
   // Hash password
@@ -29,8 +37,9 @@ async function register({ email, password, name, role }) {
       password: hashedPassword,
       name,
       role,
+      deviceId: role === 'STUDENT' ? deviceId : null,
     },
-    select: { id: true, email: true, name: true, role: true, createdAt: true },
+    select: { id: true, email: true, name: true, role: true, deviceId: true, createdAt: true },
   });
 
   // Generate token
@@ -42,7 +51,7 @@ async function register({ email, password, name, role }) {
 /**
  * Login user
  */
-async function login({ email, password }) {
+async function login({ email, password, deviceId }) {
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user) {
     throw new ApiError(401, 'Invalid email or password');
@@ -53,6 +62,27 @@ async function login({ email, password }) {
     throw new ApiError(401, 'Invalid email or password');
   }
 
+  // Device Binding logic for Students
+  if (user.role === 'STUDENT' && deviceId) {
+    if (!user.deviceId) {
+      // First time login - bind the device
+      // But first check if this device is already bound to another student
+      const deviceBound = await prisma.user.findUnique({ where: { deviceId } });
+      if (deviceBound && deviceBound.id !== user.id) {
+        throw new ApiError(403, 'This device is already linked to another account');
+      }
+
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { deviceId },
+      });
+      user.deviceId = deviceId;
+    } else if (user.deviceId !== deviceId) {
+      // Trying to login on a different device
+      throw new ApiError(403, 'This account is linked to another device. Please use your registered device.');
+    }
+  }
+
   const token = generateToken(user.id);
 
   return {
@@ -61,6 +91,7 @@ async function login({ email, password }) {
       email: user.email,
       name: user.name,
       role: user.role,
+      deviceId: user.deviceId,
     },
     token,
   };

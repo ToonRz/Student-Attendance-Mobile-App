@@ -24,6 +24,7 @@ model User {
   name      String
   role      Role
   fcmToken  String?
+  deviceId  String?  @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

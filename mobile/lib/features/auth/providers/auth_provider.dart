@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../data/auth_repository.dart';
 import 'package:student_attendance/core/network/api_exceptions.dart';
+import '../../core/services/device_service.dart';
 
 enum AuthStatus { initial, loading, authenticated, unauthenticated, error }
 
@@ -41,7 +42,8 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final data = await _repo.login(email, password);
+      final deviceId = await DeviceService.getDeviceId();
+      final data = await _repo.login(email, password, deviceId: deviceId);
       _user = data['user'];
       _status = AuthStatus.authenticated;
       notifyListeners();
@@ -65,7 +67,8 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final data = await _repo.register(name, email, password, role);
+      final deviceId = await DeviceService.getDeviceId();
+      final data = await _repo.register(name, email, password, role, deviceId: deviceId);
       _user = data['user'];
       _status = AuthStatus.authenticated;
       notifyListeners();

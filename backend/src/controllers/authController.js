@@ -2,7 +2,7 @@ const authService = require('../services/authService');
 const { asyncHandler, apiResponse, ApiError } = require('../utils/helpers');
 
 const register = asyncHandler(async (req, res) => {
-  const { email, password, name, role } = req.body;
+  const { email, password, name, role, deviceId } = req.body;
 
   if (!email || !password || !name || !role) {
     throw new ApiError(400, 'All fields are required: email, password, name, role');
@@ -12,18 +12,18 @@ const register = asyncHandler(async (req, res) => {
     throw new ApiError(400, 'Password must be at least 6 characters');
   }
 
-  const result = await authService.register({ email, password, name, role });
+  const result = await authService.register({ email, password, name, role, deviceId });
   apiResponse(res, 201, result, 'Registration successful');
 });
 
 const login = asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, deviceId } = req.body;
 
   if (!email || !password) {
     throw new ApiError(400, 'Email and password are required');
   }
 
-  const result = await authService.login({ email, password });
+  const result = await authService.login({ email, password, deviceId });
   apiResponse(res, 200, result, 'Login successful');
 });
 
