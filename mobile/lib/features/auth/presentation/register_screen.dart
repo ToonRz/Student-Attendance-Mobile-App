@@ -34,14 +34,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     final auth = context.read<AuthProvider>();
-    await auth.register(
+    final success = await auth.register(
       _nameController.text.trim(),
       _emailController.text.trim(),
       _passwordController.text,
       _selectedRole,
     );
 
-    if (auth.error != null && mounted) {
+    if (success && mounted) {
+      Navigator.pop(context);
+    } else if (auth.error != null && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(auth.error!),
