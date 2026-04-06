@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../data/student_repository.dart';
 import '../../../core/network/api_exceptions.dart';
-import '../../../core/services/device_service.dart';
+import 'package:student_attendance/core/services/device_service.dart';
 
 class StudentProvider extends ChangeNotifier {
   final StudentRepository _repo = StudentRepository();
