@@ -1,5 +1,5 @@
 class ApiConstants {
-  static const String baseUrl = 'http://127.0.0.1:3000/api'; // Web -> localhost (using IPv4)
+  static const String baseUrl = 'https://student-attendance-api-i4i5.onrender.com/api'; // Render.com URL
   // Use 'http://localhost:3000/api' for iOS simulator
   // Use your machine IP for physical device: 'http://192.168.x.x:3000/api'
 
