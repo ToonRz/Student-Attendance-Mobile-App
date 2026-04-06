@@ -36,13 +36,46 @@ class _LoginScreenState extends State<LoginScreen> {
     );
 
     if (auth.error != null && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(auth.error!),
-          backgroundColor: AppTheme.errorColor,
-        ),
-      );
-      auth.clearError();
+      // หากเป็น Error เรื่อง Device Binding ให้ขึ้นเป็น Dialog ชัดๆ
+      if (auth.error!.contains('device') || auth.error!.contains('another account')) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Row(
+              children: [
+                Icon(Icons.phonelink_lock_rounded, color: AppTheme.errorColor),
+                SizedBox(width: 10),
+                Text('Device Locked'),
+              ],
+            ),
+            content: Text(auth.error!),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
+      } else {
+        // เคสอื่นๆ เช่น รหัสผิด ให้ขึ้น SnackBar เหมือนเดิมแต่ปรับให้เด่นขึ้น
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.error_outline, color: Colors.white),
+                const SizedBox(width: 10),
+                Expanded(child: Text(auth.error!)),
+              ],
+            ),
+            backgroundColor: AppTheme.errorColor,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+        );
+      }
+      // เราจะไม่ล้าง error ทันที เพื่อให้ UI ด้านล่างแสดงข้อความค้างไว้ได้ (ถ้าต้องการ)
+      // หรือจะล้างหลังจากโชว์เสร็จก็ได้ครับ
     }
   }
 
@@ -146,6 +179,37 @@ class _LoginScreenState extends State<LoginScreen> {
                     return null;
                   },
                 ).animate().fadeIn(delay: 600.ms).slideX(begin: -0.1),
+
+                const SizedBox(height: 16),
+
+                // Error message (if any)
+                if (auth.error != null)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: AppTheme.errorColor.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppTheme.errorColor.withValues(alpha: 0.3)),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.error_outline_rounded, color: AppTheme.errorColor, size: 20),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            auth.error!,
+                            style: const TextStyle(color: AppTheme.errorColor, fontSize: 13),
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close_rounded, color: AppTheme.errorColor, size: 18),
+                          onPressed: () => auth.clearError(),
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                        ),
+                      ],
+                    ),
+                  ).animate().shake(duration: 400.ms).fadeIn(),
 
                 const SizedBox(height: 32),
 
