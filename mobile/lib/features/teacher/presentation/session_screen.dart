@@ -51,8 +51,16 @@ class _SessionScreenState extends State<SessionScreen> {
       }
 
       final position = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
-      );
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.medium,
+          timeLimit: Duration(seconds: 5),
+        ),
+      ).catchError((e) {
+        // If high/medium accuracy fails or times out, try low accuracy as fallback
+        return Geolocator.getCurrentPosition(
+          locationSettings: const LocationSettings(accuracy: LocationAccuracy.low),
+        );
+      });
 
       if (!mounted) return;
 

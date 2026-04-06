@@ -25,15 +25,16 @@ const openSession = asyncHandler(async (req, res) => {
     });
     const tokens = members.map((m) => m.student.fcmToken).filter(Boolean);
     if (tokens.length > 0) {
-      await sendMultipleNotifications(
+      // Non-blocking: We don't await here so the teacher gets the QR code immediately
+      sendMultipleNotifications(
         tokens,
         '📚 Attendance Session Started',
         `Check-in is now open for ${session.class_.name}. You have ${durationMin || 10} minutes.`,
         { sessionId: session.id, classId }
-      );
+      ).catch(err => console.error('Background notification error:', err.message));
     }
   } catch (err) {
-    console.error('Notification error:', err.message);
+    console.error('Notification setup error:', err.message);
   }
 
   apiResponse(res, 201, session, 'Session opened');
